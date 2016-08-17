@@ -1,5 +1,10 @@
 package handler
 
+import (
+	"database/sql"
+	"net/http"
+)
+
 // Error represents a handler error, It provides methods for a HTTP status
 // code and embeds the built-in error interface
 type Error interface {
@@ -9,12 +14,12 @@ type Error interface {
 
 // StatusError represents an error with an associated HTTP status code
 type StatusError struct {
+	Err  error
 	Code int
-	Err  Error
 }
 
 // allows the StatusError to satisfy the Error interface
-func (se StatusError) Error() int {
+func (se StatusError) Error() string {
 	return se.Err.Error()
 }
 
