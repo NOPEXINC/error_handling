@@ -49,7 +49,7 @@ func (h Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		switch e := err.(type) {
 		case Error:
-			// We can retrieve the status here and write out a specific
+			// Retrieve the status here and write out a specific
 			// HTTP status code
 			log.Printf("HTTP %d - %s", e.Status(), e)
 			http.Error(res, e.Error(), e.Status())
