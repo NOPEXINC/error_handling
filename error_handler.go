@@ -40,12 +40,12 @@ type Env struct {
 // matching our useful signature
 type Handler struct {
 	*Env
-	H func(e *Env, res http.ResponseWriter, req *http.Request) err
+	Handle func(e *Env, res http.ResponseWriter, req *http.Request) err
 }
 
 // ServeHTTP allows our Handler to satisfy http.Handler interface
 func (h Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	err := h.H(h.Env, res, req)
+	err := h.Handle(h.Env, res, req)
 	if err != nil {
 		switch e := err.(type) {
 		case Error:
