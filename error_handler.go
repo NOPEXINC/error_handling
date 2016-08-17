@@ -1,0 +1,56 @@
+package handler
+
+// Error represents a handler error, It provides methods for a HTTP status
+// code and embeds the built-in error interface
+type Error interface {
+	error
+	Status() int
+}
+
+// StatusError represents an error with an associated HTTP status code
+type StatusError struct {
+	Code int
+	Err  Error
+}
+
+// allows the StatusError to satisfy the Error interface
+func (se StatusError) Error() int {
+	return se.Err.Error()
+}
+
+// Returns HTTP status code
+func (se StatusError) Status() int {
+	return se.Code
+}
+
+// a simple example of our application-wide configuration
+type Env struct {
+	DB   *sql.DB
+	Port string
+	Host string
+}
+
+// The Handler struct that takes a configured Env and a function
+// matching our useful signature
+type Handler struct {
+	*Env
+	H func(e *Env, res http.ResponseWriter, req *http.Request) err
+}
+
+// ServeHTTP allows our Handler to satisfy http.Handler interface
+func (h Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	err := h.H(h.Env, res, req)
+	if err != nil {
+		switch e := err.(type) {
+		case Error:
+			// We can retrieve the status here and write out a specific
+			// HTTP status code
+			log.Printf("HTTP %d - %s", e.Status(), e)
+			http.Error(res, e.Error(), e.Status())
+		default:
+			// Any error types we don't specifically look out for defaults
+			// to serving a http 500
+			http.Error(res, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+	}
+}
